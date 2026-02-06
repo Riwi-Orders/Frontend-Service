@@ -1,12 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { LoadingSpinner } from './shared/components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  standalone: true,
+  imports: [RouterOutlet, LoadingSpinner],
+  template: `
+    <app-loading-spinner />
+    <router-outlet />
+  `,
 })
-export class App {
-  protected readonly title = signal('Frontend-Service');
-}
+export class App { }
