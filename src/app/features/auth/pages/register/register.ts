@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { UserRole } from '../../../../core/models/user.model';
 
 /**
  * Custom validator for password confirmation
@@ -60,8 +61,9 @@ export class Register {
       {
         name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required]],
+        role: ['USER', [Validators.required]],
         acceptTerms: [false, [Validators.requiredTrue]],
       },
       {
@@ -154,9 +156,9 @@ export class Register {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const { name, email, password } = this.registerForm.value;
+    const { name, email, password, role } = this.registerForm.value;
 
-    this.authService.register({ name, email, password }).subscribe({
+    this.authService.register({ name, email, password, role: role as UserRole }).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.authService.navigateToRoleBasedDashboard();
