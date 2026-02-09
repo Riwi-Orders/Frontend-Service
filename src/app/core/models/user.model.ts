@@ -45,12 +45,27 @@ export interface RegisterRequest {
     name: string;
     email: string;
     password: string;
+    role?: UserRole;
 }
 
 /**
- * Authentication response from backend
+ * Authentication response from backend (inside ApiResponse.data)
  */
 export interface AuthResponse {
     accessToken: string;
-    user?: User;
+    tokenType: string;
+    userId: string;
+    email: string;
+    name: string;
+    role: UserRole;
+}
+
+/**
+ * Generic API response wrapper from backend
+ */
+export interface ApiResponse<T> {
+    success: boolean;
+    message: string;
+    data: T;
+    timestamp: string;
 }
