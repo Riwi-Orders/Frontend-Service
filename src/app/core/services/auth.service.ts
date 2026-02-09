@@ -8,8 +8,10 @@ import {
     JwtPayload,
     LoginRequest,
     RegisterRequest,
-    AuthResponse
+    AuthResponse,
+    ApiResponse
 } from '../models/user.model';
+import { environment } from '../../../environments/environment';
 
 /**
  * AuthService - Handles all authentication-related operations
@@ -27,7 +29,7 @@ export class AuthService {
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
 
-    private readonly API_URL = '/api/auth';
+    private readonly API_URL = `${environment.apiUrl}/auth`;
     private readonly TOKEN_KEY = 'access_token';
 
     // Reactive state with Angular signals
@@ -66,9 +68,10 @@ export class AuthService {
     login(credentials: LoginRequest): Observable<AuthResponse> {
         this.isLoadingSignal.set(true);
 
-        return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials).pipe(
-            tap((response) => {
-                this.handleAuthSuccess(response);
+        return this.http.post<ApiResponse<AuthResponse>>(`${this.API_URL}/login`, credentials).pipe(
+            map((response) => response.data),
+            tap((authData) => {
+                this.handleAuthSuccess(authData);
             }),
             catchError((error) => {
                 this.isLoadingSignal.set(false);
@@ -83,9 +86,10 @@ export class AuthService {
     register(userData: RegisterRequest): Observable<AuthResponse> {
         this.isLoadingSignal.set(true);
 
-        return this.http.post<AuthResponse>(`${this.API_URL}/register`, userData).pipe(
-            tap((response) => {
-                this.handleAuthSuccess(response);
+        return this.http.post<ApiResponse<AuthResponse>>(`${this.API_URL}/register`, userData).pipe(
+            map((response) => response.data),
+            tap((authData) => {
+                this.handleAuthSuccess(authData);
             }),
             catchError((error) => {
                 this.isLoadingSignal.set(false);
@@ -148,11 +152,14 @@ export class AuthService {
     private handleAuthSuccess(response: AuthResponse): void {
         this.storeToken(response.accessToken);
 
-        const payload = this.decodeToken(response.accessToken);
-        if (payload) {
-            const user = response.user ?? this.extractUserFromPayload(payload);
-            this.currentUserSignal.set(user);
-        }
+        // Backend now returns user data directly in AuthResponse
+        const user: User = {
+            id: response.userId,
+            email: response.email,
+            name: response.name,
+            role: response.role,
+        };
+        this.currentUserSignal.set(user);
 
         this.isLoadingSignal.set(false);
     }
