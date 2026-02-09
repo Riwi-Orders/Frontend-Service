@@ -1,13 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {Navbar} from './shared/components/navbar/navbar';
+import { LoadingSpinner } from './shared/components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar],
+  standalone: true,
+  imports: [RouterOutlet, LoadingSpinner, Navbar],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
-  protected readonly title = signal('Frontend-Service');
-}
+export class App { }
