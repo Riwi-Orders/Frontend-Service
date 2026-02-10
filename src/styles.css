@@ -9,13 +9,13 @@
    CSS Custom Properties (Design Tokens)
    =================================== */
 :root {
-    /* Color Palette */
-    --color-primary: #6366f1;
-    --color-primary-light: #818cf8;
-    --color-primary-dark: #4f46e5;
+    /* Color Palette - Riwi Orders Corporate Colors */
+    --color-primary: #615fff;
+    --color-primary-light: #7c7aff;
+    --color-primary-dark: #4a48cc;
 
-    --color-secondary: #8b5cf6;
-    --color-accent: #ec4899;
+    --color-secondary: #9810fa;
+    --color-accent: #b84dfc;
 
     --color-success: #10b981;
     --color-warning: #f59e0b;

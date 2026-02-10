@@ -1,1 +1,235 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <!-- Total Orders -->
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-orders">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Total Orders</span>
+        <span class="stat-value">{{ stats().totalOrders | number }}</span>
+      </div>
+    </div>
+
+    <!-- Pending Orders -->
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-pending">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Pending Orders</span>
+        <span class="stat-value">{{ stats().pendingOrders }}</span>
+      </div>
+    </div>
+
+    <!-- Today's Revenue -->
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-revenue">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Today's Revenue</span>
+        <span class="stat-value">{{ formatCurrency(stats().todayRevenue) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Orders Table Section -->
+    <div class="orders-section">
+      <div class="section-header">
+        <h2 class="section-title">Recent Orders</h2>
+        <div class="section-actions">
+          <button class="btn-outline" (click)="openFilter()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+              <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+              <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+              <line x1="17" y1="16" x2="23" y2="16"/>
+            </svg>
+            Filter
+          </button>
+          <button class="btn-outline" (click)="exportData()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders(); track order.id) {
+              <tr
+                [class.selected]="selectedOrderId() === order.id"
+                (click)="selectOrder(order.id)"
+              >
+                <td class="order-id">#{{ order.id }}</td>
+                <td class="order-user">{{ order.userName }}</td>
+                <td class="order-date">{{ formatDate(order.date) }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                    {{ order.status }}
+                  </span>
+                </td>
+                <td class="order-total">{{ formatCurrency(order.total) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+
+        @for (page of [1, 2, 3]; track page) {
+          <button
+            class="page-btn"
+            [class.active]="currentPage() === page"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <span class="page-dots">...</span>
+
+        <button
+          class="page-btn"
+          [class.active]="currentPage() === totalPages"
+          (click)="goToPage(totalPages)"
+        >
+          {{ totalPages }}
+        </button>
+
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === totalPages"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Details Panel -->
+    @if (selectedOrder()) {
+      <div class="order-details">
+        <div class="details-header">
+          <div>
+            <span class="details-label">ORDER DETAILS</span>
+            <h3 class="details-title">#{{ selectedOrder()!.id }}</h3>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(selectedOrder()!.status)">
+            {{ selectedOrder()!.status }}
+          </span>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="customer-info">
+          <div class="customer-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="customer-details">
+            <span class="customer-label">Customer</span>
+            <span class="customer-name">{{ selectedOrder()!.userName }}</span>
+            <span class="customer-email">{{ selectedOrder()!.userEmail }}</span>
+            <span class="customer-phone">{{ selectedOrder()!.userPhone }}</span>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="order-items">
+          <h4 class="items-title">Items</h4>
+          @for (item of selectedOrder()!.items; track item.id) {
+            <div class="item-row">
+              <div class="item-quantity">{{ item.quantity }}x</div>
+              <div class="item-info">
+                <span class="item-name">{{ item.productName }}</span>
+                @if (item.description) {
+                  <span class="item-description">{{ item.description }}</span>
+                }
+              </div>
+              <span class="item-price">{{ formatCurrency(item.price) }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>{{ formatCurrency(selectedOrder()!.subtotal) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Tax (8%)</span>
+            <span>{{ formatCurrency(selectedOrder()!.tax) }}</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>{{ formatCurrency(selectedOrder()!.total) }}</span>
+          </div>
+        </div>
+
+        <!-- Update Status -->
+        <div class="update-status">
+          <label class="status-label">UPDATE STATUS</label>
+          <div class="status-controls">
+            <select
+              class="status-select"
+              [ngModel]="selectedStatus()"
+              (ngModelChange)="selectedStatus.set($event)"
+            >
+              @for (status of orderStatuses; track status) {
+                <option [value]="status">{{ status }}</option>
+              }
+            </select>
+            <button class="btn-primary" (click)="updateOrderStatus()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Update
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
